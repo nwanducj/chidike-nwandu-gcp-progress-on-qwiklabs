@@ -1,0 +1,46 @@
+Assignment 2
+Console and Cloud Shell 
+1. gsutil mb gs://example-bucket112
+
+Task 3: Create a bucket using Cloud Shell
+1. gsutil mb gs://example-bucket113
+
+Task 4: Explore more Cloud Shell features
+
+
+    *Open Cloud Shell.*
+
+    *Click the three dots (b4af82f98f85f64f.png) icon in the Cloud Shell toolbar to display further options.*
+
+    *Click Upload file. Upload any file from your local machine to the Cloud Shell VM. This file will be referred to as [MY_FILE].*
+
+    *In Cloud Shell, type ls to confirm that the file was uploaded.*
+
+    *Copy the file into one of the buckets you created earlier in the lab. Replace [MY_FILE] with the file you uploaded and [BUCKET_NAME] with one of your bucket names:*
+export BUCKET_NAME=example_bucket112.txt
+export MY_FILE=MY_TEXT.txt
+echo $MY_FILE
+gsutil cp [MY_FILE] gs://[BUCKET_NAME]
+
+Task 5: Create a persistent state in Cloud Shell
+1. gcloud compute regions list
+INFRACLASS_REGION=[us-central1]
+echo $INFRACLASS_REGION
+
+I. Append the environment variable to a file
+mkdir infraclass
+touch infraclass/config
+echo INFRACLASS_REGION=$INFRACLASS_REGION >> ~/infraclass/config
+INFRACLASS_PROJECT_ID=[YOUR_PROJECT_ID]
+echo INFRACLASS_PROJECT_ID=$INFRACLASS_PROJECT_ID >> ~/infraclass/config
+source infraclass/config
+echo $INFRACLASS_PROJECT_ID
+echo $INFRACLASS_PROJECT_ID
+
+II. Modify the bash profile and create persistence
+nano .profile
+source infraclass/config
+*Press Ctrl+O, ENTER to save the file, and then press Ctrl+X to exit nano.
+Close and then re-open Cloud Shell to cycle the VM.*
+
+echo $INFRACLASS_PROJECT_ID

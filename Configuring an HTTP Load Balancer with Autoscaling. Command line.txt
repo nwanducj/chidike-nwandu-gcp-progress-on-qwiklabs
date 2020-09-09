@@ -1,0 +1,21 @@
+Configuring an HTTP Load Balancer with Autoscaling.
+
+Task 1: Configure a health check firewall rule
+
+gcloud compute --project=qwiklabs-gcp-e6de86c6409607c1 firewall-rules create fw-allow-health-checks --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=tcp:80 --source-ranges=130.211.0.0/22,35.191.0.0/16 --target-tags=allow-health-checks
+
+Task 2: Create a NAT configuration using Cloud Router
+Task 3: Create a custom web image server
+gcloud beta compute --project=qwiklabs-gcp-e6de86c6409607c1 instances create webserver --zone=us-central1-a --machine-type=f1-micro --subnet=default --no-address --maintenance-policy=MIGRATE --service-account=354778992478-compute@developer.gserviceaccount.com --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append --tags=allow-health-checks --image=debian-9-stretch-v20200902 --image-project=debian-cloud --boot-disk-size=10GB --no-boot-disk-auto-delete --boot-disk-type=pd-standard --boot-disk-device-name=webserver --reservation-affinity=any
+
+Task 4: Create a custom image.
+gcloud compute images create mywebserver --project=qwiklabs-gcp-e6de86c6409607c1 --source-disk=webserver --source-disk-zone=us-central1-a --storage-location=us
+
+Task 4: Configure an instance template and create instance groups
+gcloud beta compute --project=qwiklabs-gcp-e6de86c6409607c1 instance-templates create mywebserver-template --machine-type=f1-micro --network=projects/qwiklabs-gcp-e6de86c6409607c1/global/networks/default --no-address --maintenance-policy=MIGRATE --service-account=354778992478-compute@developer.gserviceaccount.com --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append --tags=allow-health-checks --image=mywebserver --image-project=qwiklabs-gcp-e6de86c6409607c1 --boot-disk-size=10GB --boot-disk-type=pd-standard --boot-disk-device-name=mywebserver-template --reservation-affinity=any
+
+Task 4a: Creating instance group 
+gcloud beta compute --project=qwiklabs-gcp-e6de86c6409607c1 instance-groups managed create us-central1-mig --base-instance-name=us-central1-mig --template=mywebserver-template --size=1 --zones=us-central1-b,us-central1-c,us-central1-f --instance-redistribution-type=PROACTIVE --health-check=http-health-check --initial-delay=60
+
+gcloud beta compute --project "qwiklabs-gcp-e6de86c6409607c1" instance-groups managed set-autoscaling "us-central1-mig" --region "us-central1" --cool-down-period "60" --max-num-replicas "2" --min-num-replicas "1" --target-load-balancing-utilization "0.8" --mode "on"
+.
